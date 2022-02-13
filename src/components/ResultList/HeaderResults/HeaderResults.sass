@@ -1,0 +1,21 @@
+@import '../../../constants/_vars'
+
+.head
+  padding: 10px
+  padding-bottom: 5px
+  @include widthColumn
+  &__hidden
+    display: none
+  &__title
+    font-weight: 500
+    font-size: 11px
+    display: flex
+    align-items: center
+    text-transform: uppercase
+    color: #999999
+    &_name:hover,
+    &_type:hover,
+    &_status:hover,
+    &_site:hover
+      cursor: pointer
+      
