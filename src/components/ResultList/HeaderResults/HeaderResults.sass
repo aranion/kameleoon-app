@@ -4,8 +4,12 @@
   padding: 10px
   padding-bottom: 5px
   @include widthColumn
-  &__hidden
-    display: none
+  &__svg
+    margin-left: 8px
+    width: 7px 
+    height: 4px
+  .revers
+    transform: rotate(180deg)
   &__title
     font-weight: 500
     font-size: 11px
@@ -18,4 +22,6 @@
     &_status:hover,
     &_site:hover
       cursor: pointer
+.hidden
+    display: none
       

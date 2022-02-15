@@ -13,6 +13,8 @@
   border-left: 4px solid
   font-size: 13px
   line-height: 15px
+  opacity: 0
+  animation: ani 1s forwards
   &__border
     &_market
       border-left-color: #E14165
@@ -37,3 +39,9 @@
   &:hover
     box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.15)
     cursor: pointer
+
+@keyframes ani 
+  0% 
+    opacity: 0
+  100% 
+    opacity: 1

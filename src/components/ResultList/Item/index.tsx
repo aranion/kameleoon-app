@@ -7,7 +7,7 @@ interface Props {
   sites: Site[];
 }
 
-enum Status {
+export enum Status {
   DRAFT = "DRAFT",
   ONLINE = "ONLINE",
   PAUSED = "PAUSED",
