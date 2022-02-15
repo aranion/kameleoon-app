@@ -1,4 +1,6 @@
-import { createContext, ReactElement, useState } from "react"
+import { createContext, ReactElement, useCallback, useState } from "react"
+import { Status } from "./components/ResultList/Item"
+import { SERVER_URL } from "./configUrlSer"
 
 export const ContextData = createContext({})
 
@@ -21,6 +23,7 @@ export interface Site {
 
 export interface Data {
   tests: Test[];
+  test: Test;
   setTests: Function;
   isLoading: boolean;
   setIsLoading: Function;
@@ -32,10 +35,13 @@ export interface Data {
   setFilterTests: Function;
   resetFilter: Function;
   sortTests: Function;
+  fetchTests: Function;
+  fetchTest: Function;
 }
 
 export function Context(props: Props) {
   const [tests, setTests] = useState([])
+  const [test, setTest] = useState({} as Test)
   const [filterTests, setFilterTests] = useState([])
   const [sites, setSites] = useState([])
   const [searchWord, setSearchWord] = useState('')
@@ -47,20 +53,60 @@ export function Context(props: Props) {
   }
 
   const sortTests = (name: string, isRevers: boolean) => {
-    if(isRevers) {
-      setFilterTests([...filterTests.reverse()])
+
+    const sortFn = (a: string | number, b: string | number): number => {
+      if( a > b ) return 1
+      else if( a < b ) return -1
+      else return 0
     }
-    else {
-      setFilterTests([...filterTests.sort( (a,b) => {
-        if( a[name] > b[name]) return 1
-        if( a[name] < b[name]) return -1
-        return 0
-      })])
+
+    const replace  = (value: string): number => {
+      return {
+        [Status.ONLINE]: 1,
+        [Status.PAUSED]: 2,
+        [Status.STOPPED]: 3,
+        [Status.DRAFT]: 4
+      }[value.toLocaleUpperCase()] || 0
+    } 
+
+    if(name === 'status' && !isRevers) {
+      setFilterTests([...filterTests.sort((a,b) => sortFn(replace(a[name]), replace(b[name])))])
+    } else if(isRevers) {
+      setFilterTests([...filterTests.reverse()])
+    } else {
+      setFilterTests([...filterTests.sort((a,b) => sortFn(a[name], b[name]))])
     }
   }
 
+  const fetchTests = useCallback(() => {
+    fetch(`${SERVER_URL}/tests`)
+    .then(res => res.json())
+    .then(res => {
+      setTests(res)
+      setFilterTests(
+        res.filter((item: Test) => (new RegExp(`${searchWord}`, 'ig')).test(item.name))
+      )
+    })
+    .then(() =>
+      fetch(`${SERVER_URL}/sites`)
+        .then(res => res.json())
+        .then(res => setSites(res))
+    )
+    .catch(err => console.log(err))
+    .finally(() => setIsLoading(false))
+  }, [setTests, setIsLoading, setSites, setFilterTests, searchWord])
+
+  const fetchTest = useCallback((id: string) => {
+    fetch(`${SERVER_URL}/tests/${id}`)
+    .then(res => res.json())
+    .then(res => setTest(res))
+    .catch(err => console.log(err))
+    .finally(() => setIsLoading(false))
+  }, [setTest, setIsLoading])
+
   const value: Data = {
     tests, 
+    test,
     isLoading,
     sites, 
     searchWord, 
@@ -71,7 +117,9 @@ export function Context(props: Props) {
     setTests, 
     setIsLoading,
     resetFilter,
-    sortTests
+    sortTests,
+    fetchTests,
+    fetchTest
   }
 
   return (
